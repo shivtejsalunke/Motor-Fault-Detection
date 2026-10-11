@@ -9,6 +9,7 @@ REQUIRED_CSV_COLUMNS = {"signal", "label", "recording_id"}
 def load_csv(path: str | Path) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Load long-form CSV fields signal,label,recording_id; reject malformed values."""
     signals, labels, groups = [], [], []
+    group_labels: dict[str, str] = {}
     with Path(path).open(newline="", encoding="utf-8") as stream:
         reader = csv.DictReader(stream)
         if not reader.fieldnames or not REQUIRED_CSV_COLUMNS.issubset(reader.fieldnames):
@@ -18,13 +19,17 @@ def load_csv(path: str | Path) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
                 value = float(row["signal"])
             except (TypeError, ValueError) as exc:
                 raise ValueError(f"invalid signal at line {line}") from exc
+            label, group = row["label"], row["recording_id"]
             if not np.isfinite(value):
                 raise ValueError(f"non-finite signal at line {line}")
-            if not row["label"] or not row["recording_id"]:
+            if not label or not group:
                 raise ValueError(f"empty label/group at line {line}")
+            if group in group_labels and group_labels[group] != label:
+                raise ValueError(f"recording_id {group!r} has inconsistent labels")
+            group_labels[group] = label
             signals.append(value)
-            labels.append(row["label"])
-            groups.append(row["recording_id"])
+            labels.append(label)
+            groups.append(group)
     if not signals:
         raise ValueError("CSV contains no samples")
     return np.asarray(signals, dtype=float), np.asarray(labels), np.asarray(groups)
