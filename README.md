@@ -1,161 +1,140 @@
-# ⚙️ Motor Fault Detection
-### Vibration Signal Processing · Condition Monitoring · Reproducible Machine Learning
+# Motor Fault Detection
+### Vibration Signal Processing · Condition Monitoring · Reproducible Evaluation
 
 <div align="center">
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![NumPy](https://img.shields.io/badge/NumPy-Signal%20Features-013243?logo=numpy&logoColor=white)](https://numpy.org/)
-[![SciPy](https://img.shields.io/badge/SciPy-DSP-8CAAE6?logo=scipy&logoColor=white)](https://scipy.org/)
-[![scikit-learn](https://img.shields.io/badge/scikit--learn-Baseline%20Models-F7931E?logo=scikitlearn&logoColor=white)](https://scikit-learn.org/)
-[![CI](https://github.com/shivtejsalunke/Motor-Fault-Detection/actions/workflows/python-tests.yml/badge.svg)](https://github.com/shivtejsalunke/Motor-Fault-Detection/actions/workflows/python-tests.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-
-**An auditable engineering baseline for vibration-based rotating-machine condition monitoring.**
+[![MATLAB](https://img.shields.io/badge/MATLAB-App%20Designer-0076A8?style=for-the-badge)](https://www.mathworks.com/products/matlab.html)
+[![DSP](https://img.shields.io/badge/DSP-FFT%20Analysis-6A1B9A?style=for-the-badge)](https://en.wikipedia.org/wiki/Fast_Fourier_transform)
+[![Status](https://img.shields.io/badge/status-prototype%20%2F%20study-blue?style=for-the-badge)](#project-status)
 
 </div>
 
----
+## Project Status
 
-## At a glance
+**Stage:** [Specify the actual state: data-processing prototype / dashboard prototype / dataset evaluation / hardware-validated]  
+**Last updated:** [YYYY-MM-DD]
 
-This project builds a reproducible path from fixed-window vibration signals to interpretable time/frequency features and baseline classifiers. It is designed for engineers working across digital signal processing, machinery diagnostics, and edge-ML prototyping.
+Keep the description aligned with the actual implementation, dataset, and evidence. Distinguish real sensor measurements, public datasets, simulations, and generated examples.
 
-> **Evidence boundary:** no verified real-machine dataset is bundled or claimed as acquired. The automated tests and smoke demo use synthetic signals to validate code behavior only. This repository does **not** claim real-world accuracy, validated fault coverage, or production predictive-maintenance readiness.
+## Problem Statement
 
-## Engineering scope
+This project explores a vibration-based motor condition-monitoring workflow. The pipeline inspects signals, computes documented signal features, and presents condition indicators through a dashboard. A warning indicator is not, by itself, proof of a mechanical failure.
 
-| Layer | Implemented | Engineering value |
-|---|---|---|
-| Input contracts | Shape, finite-value and sampling-rate checks; window segmentation | Rejects ambiguous or malformed measurements early |
-| Signal processing | Optional Butterworth band-pass; DC removal/normalization helpers | Validates the Nyquist boundary and consistent preprocessing |
-| Spectral analysis | `rfft`, `rfftfreq`, Hann-windowed amplitude spectrum | Frequency features are expressed in **Hz** using an explicit sample rate |
-| Features | RMS, peak-to-peak, crest factor, excess kurtosis, skewness, dominant frequency, spectral centroid | Interpretable signals for feature review and ablation |
-| Baselines | Random Forest and Logistic Regression | Nonlinear baseline plus a scaled linear comparator |
-| Evaluation | Group-aware holdout, accuracy, macro precision/recall/F1, confusion matrix and per-class report | Keeps the same recording/session/machine group out of both partitions |
-| Artifacts | Serialized estimator and JSON metrics | Reproducible runs with inspectable outputs |
-| Quality | Unit tests and GitHub Actions | Fast regression checks on code changes |
+## Objectives
 
-## Signal-to-model flow
+- Inspect vibration data in the time and frequency domains.
+- Extract documented signal features using FFT-based analysis.
+- Present condition indicators and anomaly alerts in a MATLAB App Designer UI.
+- Evaluate the method on a clearly described dataset or measurement setup.
 
-```mermaid
-flowchart LR
-    A[Documented vibration acquisition] --> B[Windows + labels + recording groups]
-    B --> C[Validation / optional filter]
-    C --> D[Time and frequency features]
-    D --> E[Group-aware train/test split]
-    E --> F[Baseline classifier]
-    F --> G[Metrics + model artifact]
-    G --> H[Error analysis and independent validation]
-```
-
-## Repository layout
+## System Workflow
 
 ```text
-src/motor_fault_detection/
-  data_loader.py       # Signal validation, CSV loading and windowing
-  preprocessing.py     # DC removal and normalization
-  filtering.py         # Butterworth band-pass with Nyquist validation
-  fft_analysis.py      # Frequency axis and amplitude spectrum
-  features.py          # Interpretable time/frequency features
-  train.py             # Group-aware model training and metrics
-  evaluate.py          # Evaluation on separately held-out windows
-  predict.py            # Single-window inference
-configs/                # Example experiment settings
-scripts/                # Synthetic fixture and command-line helpers
-tests/                  # Unit and pipeline tests
-docs/                   # Dataset card, evaluation protocol, DSP notes
-reports/                # Explicit model-evidence status
+Signal source
+    ↓
+Data validation and preprocessing
+    ↓
+Windowing and FFT / feature extraction
+    ↓
+Documented threshold or classifier logic
+    ↓
+Dashboard status indicator and event log
+    ↓
+Evaluation and plots
 ```
 
-## Quick start
+Add screenshots and a workflow diagram under `docs/images/`.
 
-Requires Python 3.10 or newer.
+## Technology Stack
 
-```bash
-git clone https://github.com/shivtejsalunke/Motor-Fault-Detection.git
-cd Motor-Fault-Detection
-python -m venv .venv
-# Linux/macOS
-source .venv/bin/activate
-# Windows PowerShell: .venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -e '.[test]'
-make test
+- MATLAB and MATLAB App Designer
+- Digital signal processing / FFT
+- [Actual classifier or threshold logic]
+- [Actual sensor and microcontroller, if used]
+
+## Repository Layout
+
+Suggested structure — adapt it to the actual files:
+
+```text
+.
+├── app/                 # App Designer file(s)
+├── src/                 # Signal processing and condition logic
+├── data/                # Dataset notes; respect licensing
+├── tests/               # Unit/regression tests
+├── results/
+│   ├── figures/
+│   └── metrics/
+├── docs/
+│   ├── images/
+│   └── reports/
+├── .gitignore
+└── README.md
 ```
 
-The authored suite contains six tests. Passing tests establish software behavior, not performance on physical machines.
+## Setup and Reproduction
 
-### End-to-end synthetic smoke test
+Document the tested MATLAB release, required toolboxes, input-data format, sampling rate, signal units, and exact steps to open the app and reproduce the analysis.
 
-```bash
-make synthetic-demo
-```
+1. Clone the repository.
+2. Open MATLAB and set the repository as the working directory.
+3. Add required source folders to the MATLAB path.
+4. Load the documented dataset or example signal.
+5. Run the analysis and compare outputs against included reference figures or logs.
 
-This builds artificial sine-wave windows with synthetic group identifiers, then runs training. Its metrics are **not** machine-fault accuracy and must not be presented as real-world evidence.
+Replace these generic steps with precise, verified instructions.
 
-## Real dataset contract
+## Signal Processing Method
 
-No real dataset is included. Review [data/README.md](data/README.md), the [dataset card](docs/dataset-card.md), and the [evaluation protocol](docs/evaluation-protocol.md) before modeling.
+Explain the full method, including:
+- Sampling frequency, sensor units, and signal calibration
+- Detrending/filtering and handling of missing samples
+- Window function and FFT length
+- Amplitude normalization and frequency-axis calculation
+- Features or frequency bands used for diagnosis
+- Threshold/classifier selection and alert persistence rules
 
-Training expects an NPZ file containing:
-- `windows`: numeric array of shape `(n_windows, n_samples_per_window)`;
-- `labels`: one class label per window;
-- `groups`: recording, session, or machine ID aligned with every label.
+## Data & Evaluation
 
-The sample rate in Hz, sensor units, calibration, axis/mounting, operating speed/load, label provenance, acquisition settings, and dataset license must be sourced from measurement documentation—not guessed from the data shape.
+| Evaluation item | Documented value |
+|---|---|
+| Data source and license | [Fill in] |
+| Motor type and operating conditions | [Fill in] |
+| Fault classes / label definitions | [Fill in] |
+| Number of recordings and windows | [Fill in] |
+| Split strategy | [Fill in; avoid leakage between windows from the same recording] |
+| Method used to infer condition | [Fill in] |
+| Accuracy / precision / recall / F1 | [Measured value and calculation] |
+| False alarm / missed detection rate | [Measured value] |
 
-```bash
-PYTHONPATH=src python -m motor_fault_detection.train \
-  /path/to/verified_dataset.npz \
-  --sampling-rate 12000 \
-  --model random_forest \
-  --seed 17 \
-  --out results/experiment-001
-```
+Previous project materials mention a 92% accuracy figure. Present this as a verified result only if the dataset, evaluation split, metric calculation, and supporting evidence are included. Accuracy alone may hide poor performance on rare fault classes.
 
-The rate above is illustrative; substitute the documented rate of the dataset. Outputs include `model.joblib` and `metrics.json`. Inspect the training and test group IDs before interpreting metrics. Small datasets can result in partitions missing classes; improve the group split or dataset coverage rather than switching to random window splitting.
+## Results
 
-Evaluate a model against a separate NPZ with `windows` and `labels`:
-```bash
-PYTHONPATH=src python -m motor_fault_detection.evaluate \
-  results/experiment-001/model.joblib \
-  /path/to/independent_test_windows.npz \
-  --sampling-rate 12000 \
-  --out results/experiment-001/independent-evaluation.json
-```
+Include representative time-series plots, spectra, dashboard screenshots, a confusion matrix where appropriate, and raw metric tables. Label each outcome as **measured**, **simulated**, or **estimated**.
 
-## Evaluation discipline
+## Limitations
 
-Overlapping or adjacent windows from one trace are correlated. Therefore, the holdout is performed on provided `groups` rather than individual windows. A defensible external evaluation should add grouped cross-validation, confidence intervals, class-imbalance analysis, speed/load stratification, feature ablations, and an untouched machine/session.
+- Results depend on sensor mounting, sample rate, operating conditions, and data quality.
+- An anomaly alert is not a confirmed mechanical diagnosis.
+- Document fault classes, load conditions, or sensors not tested.
 
-Before making a performance claim, record:
-1. **Provenance:** source, license/terms, citation, retrieval date and dataset checksum.
-2. **Measurement chain:** sensor, mounting, units, calibration, sample rate and anti-aliasing.
-3. **Operating envelope:** machine, RPM/load, acquisition session, fault severity and label method.
-4. **Split integrity:** group definition, group IDs, duplicate checks and temporal-leakage controls.
-5. **Metrics:** per-class recall/precision, confusion matrix, support, uncertainty and false-negative implications.
-6. **Reproducibility:** package versions, seed, config, source revision, model and JSON results.
+## Roadmap
 
-## Status and roadmap
+- [ ] Add dataset/source documentation and a reproducible example.
+- [ ] Add tests for preprocessing and FFT features.
+- [ ] Publish per-class metrics and false-alarm analysis.
+- [ ] Add a dashboard demo and known-limitations section.
 
-- ✅ Input validation, segmentation, optional filtering, feature extraction and two baseline models.
-- ✅ Group-aware holdout and structured evaluation metrics.
-- ✅ CLI training, evaluation and single-window inference.
-- ✅ Synthetic software fixture and regression tests.
-- ⏳ Real-dataset provenance review and evaluation.
-- ⏳ Grouped cross-validation, uncertainty estimates, drift analysis and edge-device benchmarks.
-- ⏳ No sensor calibration, real-time acquisition, machine integration, or deployment qualification is claimed.
+## Portfolio Documentation Guide
 
-Planned next steps: license and document a public vibration dataset; add repeated grouped validation and confidence intervals; benchmark ablations/operating-condition sensitivity; and profile inference on a named target. Details in [docs/](docs/) and [reports/model-evaluation.md](reports/model-evaluation.md).
+See [docs/PROJECT_PORTFOLIO_GUIDE.md](docs/PROJECT_PORTFOLIO_GUIDE.md) for a focused checklist of technical details and evidence to publish.
 
-## Audience
+## References & License
 
-Built for signal-processing engineers, condition-monitoring researchers, embedded/edge-ML engineers and reviewers who value explicit units, dataset lineage, leakage-aware testing and inspectable artifacts.
+Cite datasets, algorithms, MATLAB documentation, and relevant condition-monitoring references. Specify the actual repository license.
 
-## License
+## Contact
 
-Original project code is MIT-licensed. External datasets and third-party material remain subject to their own terms and attribution requirements.
-
----
-
-<div align="center"><b>Traceable data → interpretable features → leakage-aware evaluation.</b></div>
+**Shivtej Salunke · SAL Dynamics**  
+[GitHub](https://github.com/shivtejsalunke) · [LinkedIn](https://www.linkedin.com/in/shivtejsalunke) · [Email](mailto:shivtejsalunke23@gmail.com)
